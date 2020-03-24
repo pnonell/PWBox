@@ -1,0 +1,19 @@
+{
+    "name": "cristian-g/upgraded-space",
+    "type": "project",
+    "require": {
+        "slim/slim": "^3.0",
+        "slim/twig-view": "^2.3",
+        "doctrine/dbal": "^2.7",
+        "dflydev/fig-cookies": "^1.0",
+        "slim/flash": "^0.4.0",
+        "swiftmailer/swiftmailer": "^6.0",
+        "kanellov/slim-twig-flash": "^0.2.0",
+        "ramsey/uuid": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pwbox\\": "src/"
+        }
+    }
+}

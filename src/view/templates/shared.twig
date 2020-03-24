@@ -1,0 +1,67 @@
+{% extends "base.html.twig" %}
+{% block title %}
+    Compartido conmigo
+    {{ parent() }}
+{% endblock %}
+{% block styles %}
+    {{ parent() }}
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+{% endblock %}
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+{% block nav_item_shared %} active{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for message in flash('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+
+        {% for message in flash('errors') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            {% for share in shares %}
+                <div class="col-sm-6">
+                    <div class="card text-center">
+                        <div class="card-header">
+                            {{ share.created_at }}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fa fa-folder"></i>&nbsp&nbsp{{ share.upload.name }}</h5>
+                            <p class="card-text">{{ share.upload.user.username }} ({{ share.upload.user.email }}) ha compartido esta carpeta contigo.</p>
+                            <a href="/dashboard/{{ share.upload.uuid }}" class="btn btn-primary">Abrir carpeta</a>
+                        </div>
+                        <div class="card-footer text-muted">
+                            {% if share.role == 'admin' %}
+                                Como administrador
+                            {% endif %}
+                            {% if share.role == 'reader' %}
+                                Como lector
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% if shares|length < 1 %}
+            <p class="text-center"><i>Vaya, por ahora nadie ha compartido nada contigo...</i></p>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+{% endblock %}

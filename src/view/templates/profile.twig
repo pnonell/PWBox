@@ -1,0 +1,69 @@
+{% extends "base.html.twig" %}
+{% import "macros/userForm.html.twig" as form %}
+{% block title %}
+    Mi perfil
+    {{ parent() }}
+{% endblock %}
+{% block styles %}
+    {{ parent() }}
+    <!--<link rel="stylesheet" type="text/css" href="{{ base_url() }}/assets/css/example.css">-->
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ base_url() }}/assets/js/update.js"></script>
+
+    <script src="{{ base_url() }}/assets/js/validate.js"></script>
+{% endblock %}
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for message in flash('profile') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error</h4>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+        {% if user.active == 0 %}
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">Dirección de correo electrónico pendiente de confirmación</h4>
+                <p>Aún no has confirmado tu dirección de correo electrónico... <a href="/resend">Haz click aquí para reenviar el link de verificación a tu email.</a></p>
+            </div>
+        {% endif %}
+
+        <div class="view-account">
+            <section class="module">
+                <div class="module-inner">
+                    <div class="side-bar">
+                        <div class="user-info">
+                            <img class="img-profile img-circle img-responsive center-block" src={{ base_url() ~ '/uploads/' ~ user.uuid ~ '/profile_image.' ~ user.extension}} alt="" id="bigProfileImage">
+                            <ul class="meta list list-unstyled">
+                                <li class="name">{{ user.username }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="content-panel">
+                        <h2 class="title">Mi perfil</h2>
+                        {{ form.userForm(user.username, user.email, user.birthdate, "", "", "","Guardar", "updateForm", "updateSubmit", "/edit", true) }}
+                        <div class="text-right">
+                            <form id="deleteUserForm" action="/deleteUser" method="POST">
+                                <button id="deleteUserButton" type="button" class="btn btn-danger">ELIMINAR CUENTA</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+{% endblock %}

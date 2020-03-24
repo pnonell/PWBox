@@ -1,0 +1,50 @@
+{% extends "base.html.twig" %}
+{% import "macros/userLogin.html.twig" as form %}
+{% block title %}
+    LogIn{{ parent() }}
+{% endblock %}
+{% block styles %}
+    {{ parent() }}
+    <!--<link rel="stylesheet" type="text/css" href="{{ base_url() }}/assets/css/example.css">-->
+{% endblock %}
+{% block scripts %}
+    <script src="{{ base_url() }}/assets/js/validate.js"></script>
+{% endblock %}
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for message in flash('login') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {{ form.userLogin() }}
+        <p></p>
+        <p>O si no tienes una cuenta...</p>
+        <a class="btn btn-primary"  href="{{ base_url() }}/register" role="button" aria-haspopup="true" aria-expanded="false">
+            Regístrate
+        </a>
+        <p></p>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error</h4>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+        <p></p>
+        {% for message in messages %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Success</h4>
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+{% endblock %}

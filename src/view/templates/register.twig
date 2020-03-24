@@ -1,0 +1,36 @@
+{% extends "base.html.twig" %}
+{% import "macros/userForm.html.twig" as form %}
+{% block title %}
+    Register{{ parent() }}
+{% endblock %}
+{% block styles %}
+    {{ parent() }}
+    <!--<link rel="stylesheet" type="text/css" href="{{ base_url() }}/assets/css/example.css">-->
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ base_url() }}/assets/js/validate.js"></script>
+{% endblock %}
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error</h4>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+        {% for message in messages %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Success</h4>
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+        {{ form.userForm() }}
+    </div>
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+{% endblock %}

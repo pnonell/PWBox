@@ -1,0 +1,406 @@
+{% extends "base.html.twig" %}
+{% block title %}
+    Mi unidad
+    {{ parent() }}
+{% endblock %}
+{% block styles %}
+    {{ parent() }}
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ base_url() }}/assets/js/lib/bootstrap-confirmation.min.js"></script>
+    <script src="{{ base_url() }}/assets/js/dashboard.js"></script>
+{% endblock %}
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+{% block nav_item_dashboard %}
+    {% if role == "owner" %}
+         active
+    {% elseif role == "admin" %}
+
+    {% elseif role == "reader" %}
+
+    {% endif %}
+{% endblock %}
+{% block nav_item_shared %}
+    {% if role == "owner" %}
+
+    {% elseif role == "admin" %}
+        active
+    {% elseif role == "reader" %}
+        active
+    {% endif %}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for message in flash('dashboard') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+
+        {% for message in flash('dashboard-errors') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error</h4>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+
+        {% if flash('errors') is empty and flash('isPost') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>¡Hurra!</strong> Todos los archivos han sido cargados exitosamente.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+        {% for errors in flash('errors') %}
+            {% for error in errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% if flash('succes') is empty and flash('isPost') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>¡Hurra!</strong> Todos los archivos han sido cargados exitosamente.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+        {% for successes in flash('succes') %}
+            {% for succes in successes %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ succes }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="card">
+            {% if not uuid_parent is null %}
+                {% if not ((role != "owner") and (parentFolder is null)) %}
+                    <div class="card-header">
+                        {% if not parentFolder is null %}
+                            <a href="/dashboard/{{ parentFolder.uuid }}"><i class="fa fa-folder-open"></i> Ir arriba</a>
+                        {% else %}
+                            <a href="/dashboard"><i class="fa fa-folder-open"></i> Ir arriba</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <p class="card-text">
+                            <strong>
+                                {% if not folderName is null %}
+                                    <i class="fa fa-folder"></i> {{ folderName }}
+                                {% else %}
+                                    <i class="fa fa-home"></i> Mi unidad
+                                {% endif %}
+                            </strong>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        {% if not uuid_parent is null %}
+                            {% if role == "owner" %}
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#shareModal">
+                                    <i class="fa fa-users"></i> Compartir
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if not uuid_parent is null %}
+            <ol class="breadcrumb" dir="ltr">
+                {% if role == "owner" %}
+                    <li><a href="/dashboard"><i class="fa fa-home fa-lg fa-fw"></i> Mi unidad</a></li>
+                {% endif %}
+                {% for folder in breadcrumb %}
+                    {% if (role != "owner") and (loop.index0 == 0) %}
+                        <li><a href="/dashboard/{{ folder.uuid }}"><i class="fa fa-folder"></i> {{ folder.name }}</a></li>
+                    {% else %}
+                        &nbsp/&nbsp<li><a href="/dashboard/{{ folder.uuid }}">{{ folder.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        {% endif %}
+
+        <div class="row">
+            {% if (role == "owner") or (role == "admin") %}
+                <div class="col-md-8">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newFolderModal">
+                        <i class="fa fa-folder"></i> Nueva carpeta
+                    </button>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFileModal">
+                        <i class="fa fa-cloud-upload-alt"></i> Subir archivo
+                    </button>
+                </div>
+            {% elseif role == "reader" %}
+
+            {% endif %}
+            {% if role == "owner" %}
+                <div class="col-md-4 text-right"><i class="fa fa-user-circle"></i> Propietario</div>
+            {% elseif role == "admin" %}
+                <div class="col-md-4 text-right"><i class="fa fa-edit"></i> Administrador</div>
+            {% elseif role == "reader" %}
+                <div class="col-md-12 text-right"><i class="fa fa-eye"></i> Lector</div>
+            {% endif %}
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="newFolderModal" tabindex="-1" role="dialog" aria-labelledby="newFolderModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newFolderModalLabel">Nueva carpeta</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/folder" method="post" id="newFolderForm">
+                            <div class="form-group">
+                                <label for="folder-name" class="col-form-label">Nombre de la carpeta:</label>
+                                <input type="text" class="form-control" id="folder-name" name="name">
+                                {% if uuid_parent is null %}
+                                    <input type="hidden" name="uuid_parent" value="">
+                                {% else %}
+                                    <input type="hidden" name="uuid_parent" value="{{ uuid_parent }}">
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="submitNewFolder">Crear la carpeta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="uploadFileModal" tabindex="-1" role="dialog" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadFileModalLabel">Subir archivo</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/file" enctype="multipart/form-data" method="POST" id="uploadFileForm">
+                            <input type="file" name="files[]" multiple="multiple">
+                            {% if uuid_parent is null %}
+                                <input type="hidden" name="uuid_parent" value="">
+                            {% else %}
+                                <input type="hidden" name="uuid_parent" value="{{ uuid_parent }}">
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="submitUploadFile">Subir archivo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="renameModalLabel">Cambiar el nombre</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/rename" method="post" id="renameForm">
+                            <div class="form-group">
+                                <label for="folder-name" class="col-form-label">Nombre:</label>
+                                <input type="text" class="form-control" name="name" value="" id="name_upload_rename">
+                                <input type="hidden" name="id" value="" id="id_upload_rename">
+                                {% if uuid_parent is null %}
+                                    <input type="hidden" name="uuid_parent" value="">
+                                {% else %}
+                                    <input type="hidden" name="uuid_parent" value="{{ uuid_parent }}">
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="submitRename">Renombrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if not uuid_parent is null %}
+            <!-- Modal -->
+            <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shareModalLabel">Compartir la carpeta</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/share" method="post" id="shareForm">
+                                <div class="form-group">
+                                    <label for="folder-name" class="col-form-label">Correo electrónico del usuario que va a recibir la carpeta:</label>
+                                    <input type="text" class="form-control" name="email" value="" id="email_share">
+                                    <input type="hidden" name="uuid_upload" value="{{ uuid_parent }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roleSelect">Rol del usuario que va a recibir la carpeta:</label>
+                                    <select class="form-control" id="roleSelect" name="role">
+                                        <option value="reader">Lector</option>
+                                        <option value="admin">Administrador</option>
+                                    </select>
+                                </div>
+                                {% if uuid_parent is null %}
+                                    <input type="hidden" name="uuid_parent" value="">
+                                {% else %}
+                                    <input type="hidden" name="uuid_parent" value="{{ uuid_parent }}">
+                                {% endif %}
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="submitShare">Compartir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table id="bs-table" class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="text-left">Nombre</th>
+                    <th class="text-right">Tamaño</th>
+                    <th class="text-right">Última modificación</th>
+                    {% if (role == "owner") or (role == "admin") %}
+                        <th class="text-right"></th>
+                    {% elseif role == "reader" %}
+
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                    {% set foldersCount = 0 %}
+                    {% set filesCount = 0 %}
+                    {% for upload in uploads %}
+                        <tr>
+                            <td class="text-left" data-sort-value="checksum">
+                                {% if upload.ext == "pdf" %}
+                                    <i class="fa fa-book"></i>
+                                {% elseif (upload.ext == "jpg") or (upload.ext == "png") or (upload.ext == "gif") %}
+                                    <i class="fa fa-image"></i>
+                                {% elseif upload.ext == "md" %}
+                                    <i class="fa fa-align-left"></i>
+                                {% elseif upload.ext == "txt" %}
+                                    <i class="fa fa-file-alt"></i>
+                                {% else %}
+                                    <i class="fa fa-folder"></i>
+                                {% endif %}
+                                {% if upload.ext is null %}
+                                    <span class="folder-name" ondblclick="window.location.href = '/dashboard/{{ upload.uuid }}'"><strong>{{ upload.name }}</strong></span>
+                                    {% set foldersCount = foldersCount+1 %}
+                                {% else %}
+                                    <a href="/dashboard/{{ upload.uuid }}" download="{{ upload.name }}.{{ upload.ext }}"><strong>{{ upload.name }}.{{ upload.ext }}</strong></a>
+                                    {% set filesCount = filesCount+1 %}
+                                {% endif %}
+                            </td>
+                            <td class="text-right">{{ upload.bytes_size }} bytes</td>
+                            <td class="text-right">{{ upload.updated_at }}</td>
+                            {% if (role == "owner") or (role == "admin") %}
+                                <td class="text-right">
+                                    <button type="button" class="btn btn-secondary renameUploadButton" data-toggle="tooltip" data-placement="top" title="Renombrar" data-id="{{ upload.id }}" data-name="{{ upload.name }}">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger deleteUploadButton" data-id="{{ upload.id }}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            {% elseif role == "reader" %}
+
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    {% if uploads|length < 1 %}
+                        <tr>
+                            <td colspan="4" class="text-center"><i>Esto aún está vacío... ¿Por qué no subes algo?</i></td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4">
+                        {% if foldersCount == 1 %}
+                            {% set foldersWord = "carpeta" %}
+                        {% else %}
+                            {% set foldersWord = "carpetas" %}
+                        {% endif %}
+                        {% if filesCount == 1 %}
+                            {% set filesWord = "archivo" %}
+                        {% else %}
+                            {% set filesWord = "archivos" %}
+                        {% endif %}
+                        {% if uuid_parent is null %}
+                            <small class="pull-left text-muted" dir="ltr">{{ foldersCount }} {{ foldersWord }} y {{ filesCount }} {{ filesWord }}</small>
+                        {% else %}
+                            <small class="pull-left text-muted" dir="ltr">{{ foldersCount }} {{ foldersWord }} y {{ filesCount }} {{ filesWord }}, {{ folderSize }} bytes en total</small>
+                        {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <form action="/delete" method="post" id="deleteForm">
+            <input type="hidden" name="id" value="" id="id_upload_delete">
+            {% if uuid_parent is null %}
+                <input type="hidden" name="uuid_parent" value="">
+            {% else %}
+                <input type="hidden" name="uuid_parent" value="{{ uuid_parent }}">
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+{% endblock %}
